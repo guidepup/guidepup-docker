@@ -19,7 +19,9 @@ test("Orca reads page content in Firefox", async ({ page, orca }) => {
   );
 
   await orca.navigateToWebContent();
-  await orca.nextHeading();
+
+  await orca.next();
+  await orca.next();
 
   const spokenPhrases = (await orca.spokenPhraseLog()).join("\n");
 
