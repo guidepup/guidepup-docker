@@ -1,0 +1,92 @@
+name: Publish Docker images
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-docker-images
+  cancel-in-progress: false
+
+jobs:
+  detect-release:
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.release.outputs.publish }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Check latest Guidepup release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          release_tag="$(gh api repos/guidepup/guidepup/releases/latest --jq '.tag_name')"
+
+          if [[ ! "$release_tag" =~ ^v?([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "Unexpected Guidepup release tag: ${release_tag}" >&2
+            exit 1
+          fi
+
+          version="${BASH_REMATCH[1]}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+          publish=false
+          for tag in \
+            "${version}-ubuntu-resolute-node24" \
+            "${version}-ubuntu-resolute-node26" \
+            "${version}-debian-trixie-node24" \
+            "${version}-debian-trixie-node26"; do
+            status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+              "https://hub.docker.com/v2/repositories/guidepup/guidepup/tags/${tag}")"
+            case "$status" in
+              200) ;;
+              404) publish=true ;;
+              *)
+                echo "Docker Hub returned HTTP ${status} when checking tag ${tag}" >&2
+                exit 1
+                ;;
+            esac
+          done
+
+          echo "publish=${publish}" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: detect-release
+    if: needs.detect-release.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["24", "26"]
+        image:
+          - distro: ubuntu
+            codename: resolute
+            dockerfile: Dockerfile.ubuntu
+          - distro: debian
+            codename: trixie
+            dockerfile: Dockerfile.debian
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ matrix.image.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: guidepup/guidepup:${{ needs.detect-release.outputs.version }}-${{ matrix.image.distro }}-${{ matrix.image.codename }}-node${{ matrix.node-version }}
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
+            GUIDEPUP_VERSION=${{ needs.detect-release.outputs.version }}
+            GUIDEPUP_SETUP_VERSION=0.29.2

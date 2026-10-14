@@ -1,0 +1,17 @@
+ARG NODE_VERSION
+FROM node:${NODE_VERSION}-trixie
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG GUIDEPUP_VERSION
+ARG GUIDEPUP_SETUP_VERSION
+
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+RUN mkdir -p /opt/guidepup && \
+    cd /opt/guidepup && \
+    npm init --yes && \
+    npm install --no-audit --no-fund --save-exact "@guidepup/guidepup@${GUIDEPUP_VERSION}" && \
+    npx --yes "@guidepup/setup@${GUIDEPUP_SETUP_VERSION}" setup --ci && \
+    npx --yes "@guidepup/setup@${GUIDEPUP_SETUP_VERSION}" install orca && \
+    rm -rf /root/.npm /var/lib/apt/lists/*
