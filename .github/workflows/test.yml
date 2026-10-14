@@ -1,0 +1,73 @@
+name: Test Docker images
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: ubuntu
+            dockerfile: Dockerfile.ubuntu
+            node-version: "24"
+          - distro: ubuntu
+            dockerfile: Dockerfile.ubuntu
+            node-version: "26"
+          - distro: debian
+            dockerfile: Dockerfile.debian
+            node-version: "24"
+          - distro: debian
+            dockerfile: Dockerfile.debian
+            node-version: "26"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Get latest Guidepup release
+        id: guidepup
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          release_tag="$(gh api repos/guidepup/guidepup/releases/latest --jq '.tag_name')"
+
+          if [[ ! "$release_tag" =~ ^v?([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "Unexpected Guidepup release tag: ${release_tag}" >&2
+            exit 1
+          fi
+
+          echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+      - name: Build image
+        env:
+          GUIDEPUP_VERSION: ${{ steps.guidepup.outputs.version }}
+        run: |
+          docker build \
+            --file "${{ matrix.dockerfile }}" \
+            --build-arg "NODE_VERSION=${{ matrix.node-version }}" \
+            --build-arg "GUIDEPUP_VERSION=${GUIDEPUP_VERSION}" \
+            --build-arg GUIDEPUP_SETUP_VERSION=0.29.2 \
+            --tag "guidepup-docker-test:${{ matrix.distro }}-node${{ matrix.node-version }}" \
+            .
+      - name: Run Orca and Playwright smoke test
+        env:
+          GUIDEPUP_VERSION: ${{ steps.guidepup.outputs.version }}
+        run: |
+          docker run --rm \
+            --volume "${PWD}/test:/test" \
+            --env GUIDEPUP_VERSION \
+            "guidepup-docker-test:${{ matrix.distro }}-node${{ matrix.node-version }}" \
+            bash -euc '
+              cd /test
+              npm install --no-audit --no-fund \
+                "@guidepup/guidepup@${GUIDEPUP_VERSION}"
+              npx playwright install --with-deps firefox
+              xvfb-run dbus-run-session -- npm test
+            '

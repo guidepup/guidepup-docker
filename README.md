@@ -74,3 +74,7 @@ Configure these repository secrets before publishing:
 - `DOCKERHUB_TOKEN`: Docker Hub access token with read/write permissions
 
 The `@guidepup/setup` version is pinned independently in `.github/workflows/publish.yml` and should be updated there when desired.
+
+## Testing
+
+The `Test Docker images` workflow builds both Dockerfiles with the latest stable Guidepup release, then runs the Orca + Firefox Playwright smoke test in each image. Firefox is installed by the test run rather than included in the base images.
