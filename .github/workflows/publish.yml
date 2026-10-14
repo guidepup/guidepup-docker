@@ -108,4 +108,4 @@ jobs:
           build-args: |
             NODE_VERSION=${{ matrix.node-version }}
             GUIDEPUP_VERSION=${{ needs.detect-release.outputs.version }}
-            GUIDEPUP_SETUP_VERSION=0.29.2
+            GUIDEPUP_SETUP_VERSION=0.29.3

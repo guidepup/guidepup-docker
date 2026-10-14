@@ -8,9 +8,7 @@ ARG GUIDEPUP_SETUP_VERSION
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3-dasbus && \
-    mkdir -p /opt/guidepup && \
+RUN mkdir -p /opt/guidepup && \
     cd /opt/guidepup && \
     npm init --yes && \
     npm install --no-audit --no-fund --save-exact "@guidepup/guidepup@${GUIDEPUP_VERSION}" && \

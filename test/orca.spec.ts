@@ -7,6 +7,8 @@ async function delay(ms: number) {
 
 const expectedHeading = "Guidepup Smoke Test Page Heading";
 
+test.use({ orcaStartOptions: { capture: true } });
+
 test("Orca reads page content in Firefox", async ({ page, orca }) => {
   await page.goto("about:blank", {
     waitUntil: "load",
@@ -27,12 +29,8 @@ test("Orca reads page content in Firefox", async ({ page, orca }) => {
   );
 
   await page.locator("h1").waitFor();
-  await delay(500);
 
   await orca.navigateToWebContent();
-  await delay(500);
-
-  await orca.next();
   await orca.next();
 
   const spokenPhrases = (await orca.spokenPhraseLog()).join("\n");

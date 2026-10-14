@@ -53,7 +53,7 @@ jobs:
             --file "${{ matrix.dockerfile }}" \
             --build-arg "NODE_VERSION=${{ matrix.node-version }}" \
             --build-arg "GUIDEPUP_VERSION=${GUIDEPUP_VERSION}" \
-            --build-arg GUIDEPUP_SETUP_VERSION=0.29.2 \
+            --build-arg GUIDEPUP_SETUP_VERSION=0.29.3 \
             --tag "guidepup-docker-test:${{ matrix.distro }}-node${{ matrix.node-version }}" \
             .
       - name: Run Orca and Playwright smoke test
