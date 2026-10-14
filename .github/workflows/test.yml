@@ -69,5 +69,5 @@ jobs:
               npm install --no-audit --no-fund \
                 "@guidepup/guidepup@${GUIDEPUP_VERSION}"
               npx playwright install --with-deps firefox
-              xvfb-run dbus-run-session -- npm test
+              DEBUG=guidepup:* xvfb-run dbus-run-session -- npm test
             '
