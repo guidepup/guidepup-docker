@@ -64,14 +64,18 @@ docker run --rm -it my-guidepup-project
 
 This example sets `/app` as the derived image's working directory; the Guidepup base image itself does not impose one. Adjust the base tag to the OS and Node.js version you need.
 
-## Publishing
+## Powerful tooling
 
-The `Publish Docker images` workflow checks the latest stable release of `guidepup/guidepup` daily and publishes its four OS/Node combinations to GHCR if any corresponding tag is missing. It can also be run manually with `workflow_dispatch`.
+Check out some of the other Guidepup modules:
 
-Publishing uses the repository's automatically provided `GITHUB_TOKEN`; no Docker Hub account or additional publishing secret is required. After the first successful publish, set the `guidepup/guidepup` container package visibility to **Public** in the organization's GitHub Packages settings so users can pull images without authenticating.
+- [`@guidepup/setup`](https://github.com/guidepup/setup/) - Set up your local or CI environment for screen reader test automation.
+- [`@guidepup/guidepup`](https://github.com/guidepup/guidepup/) - Reliable automation for your screen reader a11y workflows through JavaScript supporting VoiceOver and NVDA.
+- [`@guidepup/playwright`](https://github.com/guidepup/guidepup-playwright/) - Seamless integration of Guidepup with Playwright.
+- [`@guidepup/virtual-screen-reader`](https://github.com/guidepup/virtual-screen-reader/) - Reliable unit testing for your screen reader a11y workflows.
+- [`@guidepup/jest`](https://github.com/guidepup/jest/) - Jest matchers for reliable unit testing of your screen reader a11y workflows.
 
-The `@guidepup/setup` version is pinned independently in `.github/workflows/publish.yml` and should be updated there when desired.
+## Resources
 
-## Testing
-
-The `Test Docker images` workflow builds both Dockerfiles with the latest stable Guidepup release, then runs the Orca + Firefox Playwright smoke test in each image. Firefox is installed by the test run rather than included in the base images.
+- [Documentation](https://www.guidepup.dev)
+- [Releases](https://github.com/guidepup/guidepup-docker/pkgs/container/guidepup)
+- [MIT License](https://github.com/guidepup/guidepup-docker/blob/main/LICENSE)
