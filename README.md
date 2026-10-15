@@ -1,6 +1,22 @@
-# Guidepup Docker images
+# Guidepup for Docker
 
-Linux base images for Guidepup screen reader automation. Each image includes Node.js, the Linux runtime packages configured by `@guidepup/setup`, and the Orca assets required by the corresponding `@guidepup/guidepup` release. The matching Guidepup package remains installed under `/opt/guidepup` so the baked assets stay registered. Browsers are not included; install the browser version that matches your project's Playwright dependency.
+<a href="https://github.com/guidepup/guidepup-docker/actions/workflows/test.yml"><img alt="Guidepup Docker test workflows" src="https://github.com/guidepup/guidepup-docker/workflows/Test/badge.svg" /></a>
+<a href="https://github.com/guidepup/guidepup-docker/blob/main/LICENSE"><img alt="Guidepup Docker uses the MIT license" src="https://img.shields.io/github/license/guidepup/guidepup-docker" /></a>
+
+## [Documentation](https://www.guidepup.dev)
+
+[![Ubuntu Resolute Support](https://img.shields.io/badge/ubuntu-26.04%2B-blue.svg?logo=ubuntu)](https://releases.ubuntu.com/resolute/)
+[![Debian Trixie Support](https://img.shields.io/badge/debian-13%2B-blue.svg?logo=debian)](https://www.debian.org/releases/trixie/)
+
+Base images that enable Guidepup automation for the <a href="https://www.guidepup.dev/docs/api/class-orca"><b>Orca screen reader</b></a> in Linux containers.
+
+## Overview
+
+Linux base images for Guidepup screen reader automation.
+
+Each image includes Node.js, the Linux runtime packages configured by `@guidepup/setup`, and the Orca assets required by the corresponding `@guidepup/guidepup` release.
+
+Browsers are not included.
 
 ## Images
 
